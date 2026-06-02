@@ -337,14 +337,27 @@ export function ChallengePage({ token, canAdmin = false }: ChallengePageProps) {
               </div>
             ) : (
               <div className="challenge-leaderboard">
+                <div className="challenge-rank-row challenge-rank-header" aria-hidden="true">
+                  <span>{language === 'zh' ? '排名' : 'Rank'}</span>
+                  <span>{language === 'zh' ? 'Agent' : 'Agent'}</span>
+                  <span>{language === 'zh' ? '收益' : 'Return'}</span>
+                  <span>{language === 'zh' ? '最大回撤' : 'Max DD'}</span>
+                  <span>{language === 'zh' ? '交易数' : 'Trades'}</span>
+                  <span>{language === 'zh' ? '得分 / 状态' : 'Score / Status'}</span>
+                </div>
                 {leaderboard.map((row) => (
                   <div key={`${row.agent_id}-${row.rank || 'dq'}`} className={`challenge-rank-row ${row.disqualified_reason ? 'disqualified' : ''}`}>
                     <span className="challenge-rank-number">{row.rank ? `#${row.rank}` : 'DQ'}</span>
                     <span className="challenge-agent-name">{row.agent_name || `Agent ${row.agent_id}`}</span>
-                    <span className={(row.return_pct || 0) >= 0 ? 'challenge-positive' : 'challenge-negative'}>{formatPct(row.return_pct)}</span>
-                    <span>{language === 'zh' ? '回撤' : 'DD'} {formatPct(row.max_drawdown)}</span>
-                    <span>{language === 'zh' ? '交易' : 'Trades'} {row.trade_count || 0}</span>
-                    <span>{row.disqualified_reason || formatPct(row.final_score)}</span>
+                    <span
+                      className={(row.return_pct || 0) >= 0 ? 'challenge-positive' : 'challenge-negative'}
+                      data-label={language === 'zh' ? '收益' : 'Return'}
+                    >
+                      {formatPct(row.return_pct)}
+                    </span>
+                    <span data-label={language === 'zh' ? '最大回撤' : 'Max DD'}>{formatPct(row.max_drawdown)}</span>
+                    <span data-label={language === 'zh' ? '交易数' : 'Trades'}>{row.trade_count || 0}</span>
+                    <span data-label={language === 'zh' ? '得分 / 状态' : 'Score / Status'}>{row.disqualified_reason || formatPct(row.final_score)}</span>
                   </div>
                 ))}
               </div>

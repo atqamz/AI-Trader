@@ -783,11 +783,12 @@ a {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-x: auto;
 }
 
 .challenge-rank-row {
   display: grid;
-  grid-template-columns: 56px minmax(140px, 1fr) repeat(4, minmax(84px, auto));
+  grid-template-columns: 56px minmax(140px, 1fr) repeat(4, minmax(86px, 116px));
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
@@ -795,6 +796,22 @@ a {
   border-radius: 14px;
   background: rgba(18, 27, 34, 0.62);
   font-size: 13px;
+}
+
+.challenge-rank-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.challenge-rank-header {
+  padding-top: 0;
+  padding-bottom: 2px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .challenge-rank-row.disqualified {
@@ -3082,8 +3099,24 @@ a {
     grid-template-columns: 44px minmax(0, 1fr);
   }
 
+  .challenge-rank-header {
+    display: none;
+  }
+
   .challenge-rank-row span:nth-child(n + 3) {
     grid-column: 2;
+  }
+
+  .challenge-rank-row:not(.challenge-rank-header) span[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .challenge-rank-row:not(.challenge-rank-header) span[data-label]::before {
+    content: attr(data-label);
+    color: var(--text-secondary);
+    font-weight: 600;
   }
 
   .team-rank-row span:nth-child(n + 3),

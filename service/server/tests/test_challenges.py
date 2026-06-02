@@ -226,6 +226,38 @@ class ChallengeTests(unittest.TestCase):
             rows = list(csv.DictReader(handle))
         self.assertEqual(len(rows), 2)
 
+    def test_return_only_settlement_records_max_drawdown(self):
+        challenge = self._create_active_challenge(challenge_key="return-drawdown")
+        join_challenge(challenge["challenge_key"], self.agent_2)
+        self._insert_trade_signal(self.agent_2, 231, "buy", 100.0, 10.0)
+        self._insert_trade_signal(self.agent_2, 232, "sell", 50.0, 1.0)
+        self._insert_trade_signal(self.agent_2, 233, "sell", 120.0, 9.0)
+
+        result = settle_challenge(challenge["challenge_key"])
+        row = next(item for item in result["leaderboard"] if item["agent_id"] == self.agent_2)
+
+        self.assertAlmostEqual(row["return_pct"], 13.0)
+        self.assertAlmostEqual(row["max_drawdown"], 50.0)
+        self.assertAlmostEqual(row["final_score"], 13.0)
+
+        conn = database.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT cp.max_drawdown AS participant_drawdown,
+                   cr.max_drawdown AS result_drawdown
+            FROM challenge_participants cp
+            JOIN challenge_results cr ON cr.challenge_id = cp.challenge_id AND cr.agent_id = cp.agent_id
+            WHERE cp.challenge_id = ? AND cp.agent_id = ?
+            """,
+            (challenge["id"], self.agent_2),
+        )
+        stored = cursor.fetchone()
+        conn.close()
+        self.assertIsNotNone(stored)
+        self.assertAlmostEqual(stored["participant_drawdown"], 50.0)
+        self.assertAlmostEqual(stored["result_drawdown"], 50.0)
+
     def test_risk_adjusted_ranking_penalizes_drawdown(self):
         challenge = {
             "id": 1,
